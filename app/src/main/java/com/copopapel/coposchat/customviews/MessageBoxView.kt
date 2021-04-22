@@ -12,7 +12,7 @@ import com.copopapel.coposchat.R
 /**
  * TODO: document your custom view class.
  */
-class MessageBoxView : AppCompatTextView {
+open class MessageBoxView : AppCompatTextView {
 
     private var _exampleString: String? = null // TODO: use a default from R.string...
     private var _exampleColor: Int = Color.RED // TODO: use a default from R.color...
@@ -30,14 +30,8 @@ class MessageBoxView : AppCompatTextView {
         this.text = text
         this.setPadding(18)
 
-        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        lp.setMargins(60,10,5,10)
-        lp.gravity = Gravity.RIGHT
-
-        this.layoutParams = lp
+        this.gravity = Gravity.RIGHT
 
         this.background = resources.getDrawable(R.color.colorWhite)
-
-        this.gravity = Gravity.RIGHT
     }
 }
