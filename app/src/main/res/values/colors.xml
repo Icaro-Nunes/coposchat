@@ -7,5 +7,9 @@
     <color name="colorBack">#444444</color>
     <color name="colorWhite">#DDDDF0</color>
 
+    <color name="colorContact">#F0F0FF</color>
+    <color name="colorContactFocused">#C0C0FF</color>
+    <color name="colorContactPressed">#8080AF</color>
+
     <color name="colorTextCommon">#000000</color>
 </resources>

@@ -2,4 +2,5 @@
     <string name="app_name">CoposChat</string>
     <string name="message_box_hint">Type a message</string>
     <string name="testMessageBox">Testeeeeeeeeeeeee</string>
+    <string name="back_button">Back</string>
 </resources>

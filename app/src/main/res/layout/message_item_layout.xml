@@ -17,7 +17,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/colorBars"
+        android:background="@color/colorWhite"
         android:gravity="center"
         android:minWidth="55dp"
         android:padding="18dp">

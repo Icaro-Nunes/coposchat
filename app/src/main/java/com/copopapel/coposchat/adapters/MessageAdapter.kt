@@ -21,9 +21,9 @@ class MessageAdapter(private val messages: List<CoposchatMessage>): RecyclerView
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         // Inflate the custom layout
-        val contactView = inflater.inflate(R.layout.message_item_layout, parent, false)
+        val messageView = inflater.inflate(R.layout.message_item_layout, parent, false)
         // Return a new holder instance
-        return ViewHolder(contactView)
+        return ViewHolder(messageView)
     }
 
     override fun getItemCount(): Int {

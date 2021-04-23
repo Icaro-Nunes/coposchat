@@ -8,17 +8,30 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.copopapel.coposchat.adapters.MessageAdapter
 import com.copopapel.coposchat.customviews.MessageBoxView
 import com.copopapel.coposchat.customviews.SentMessageBoxView
+import com.copopapel.coposchat.models.CoposchatContact
 import com.copopapel.coposchat.models.CoposchatMessage
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    val theListForReal = createMessageList(4)
-    val adapter = MessageAdapter(theListForReal)
+    private val theListForReal = createMessageList(4)
+    private val adapter = MessageAdapter(theListForReal)
+    private var contato: CoposchatContact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        contato = intent.getParcelableExtra<CoposchatContact>("contact")
+
+        val theActionBar = supportActionBar
+        theActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        if(contato != null){
+            val mensagemCorrompida = CoposchatMessage("Mensagem corrompida", "me")
+            theActionBar?.title = contato?.name
+            theListForReal.add(contato?.lastMessage!!)
+        }
 
         val lManager = LinearLayoutManager(this)
         //lManager.reverseLayout = true
@@ -48,5 +61,10 @@ class MainActivity : AppCompatActivity() {
 
         adapter.notifyItemInserted(lastIndexOfTheListForReal)
         messagePanel.scrollToPosition(lastIndexOfTheListForReal)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return super.onSupportNavigateUp()
     }
 }
