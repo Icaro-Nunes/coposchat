@@ -4,13 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ActivityContacts">
+    tools:context=".ContactsActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contacts_panel"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"/>
 
-    </androidx.recyclerview.widget.RecyclerView>
+    <Button
+        android:id="@+id/addContactButton"
+        android:onClick="onClickAddContact"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/add_contact_button_shape"
+        android:foreground="@android:drawable/ic_menu_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

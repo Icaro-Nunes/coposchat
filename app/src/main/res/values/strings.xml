@@ -3,4 +3,7 @@
     <string name="message_box_hint">Type a message</string>
     <string name="testMessageBox">Testeeeeeeeeeeeee</string>
     <string name="back_button">Back</string>
+    <string name="addContactActivityTitle">Add Contact</string>
+    <string name="newContactName">New Contact Name</string>
+    <string name="saveContact">Save Contact</string>
 </resources>

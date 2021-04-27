@@ -5,8 +5,8 @@ import android.os.Parcelable
 import java.time.LocalDateTime
 
 data class CoposchatMessage(
-    val content: String,
-    val source: String
+    val content: String?,
+    val source: String?
 ) {
 
 }
