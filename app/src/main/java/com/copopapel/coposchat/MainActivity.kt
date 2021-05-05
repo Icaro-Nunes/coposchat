@@ -6,6 +6,7 @@ import android.text.Editable
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.copopapel.coposchat.adapters.MessageAdapter
+import com.copopapel.coposchat.application.CoposChatApplication
 import com.copopapel.coposchat.customviews.MessageBoxView
 import com.copopapel.coposchat.customviews.SentMessageBoxView
 import com.copopapel.coposchat.models.CoposchatContact
@@ -14,8 +15,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    private val theListForReal = createMessageList(4)
-    private val adapter = MessageAdapter(theListForReal)
+    private lateinit var theListForReal:ArrayList<CoposchatMessage>
+    private lateinit var adapter: MessageAdapter
     private var contato: CoposchatContact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         contato = intent.getParcelableExtra<CoposchatContact>("contact")
+        theListForReal = createMessageList()
+        adapter = MessageAdapter(theListForReal)
 
         val theActionBar = supportActionBar
         theActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -30,7 +33,6 @@ class MainActivity : AppCompatActivity() {
         if(contato != null){
             val mensagemCorrompida = CoposchatMessage("Mensagem corrompida", "me")
             theActionBar?.title = contato?.name
-            theListForReal.add(contato?.lastMessage!!)
         }
 
         val lManager = LinearLayoutManager(this)
@@ -42,20 +44,18 @@ class MainActivity : AppCompatActivity() {
         messagePanel.adapter = adapter
     }
 
-    fun createMessageList(num: Int): ArrayList<CoposchatMessage> {
-        val theList = ArrayList<CoposchatMessage>()
+    fun createMessageList(): ArrayList<CoposchatMessage> {
+        val theList = CoposChatApplication.instance.helperContatosDB?.fetchAllMessagesForContact(contato?.id.toString()) ?: return arrayListOf()
 
-        for(i in 1..num){
-            theList.add(CoposchatMessage(i.toString(), "me"))
-        }
-
-        return theList
+        return ArrayList(theList)
     }
 
 
     fun addMessage(view:View){
-        theListForReal.add(CoposchatMessage(editText1.text.toString(),"me"))
+        val message = CoposchatMessage(editText1.text.toString(),"me")
+        theListForReal.add(message)
         editText1.setText("")
+        CoposChatApplication.instance.helperContatosDB?.addMessage(contato?.id.toString(), message)
 
         val lastIndexOfTheListForReal = theListForReal.lastIndex
 

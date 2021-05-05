@@ -12,9 +12,10 @@ class HelperContatosDB(context: Context):
 
     companion object {
         val DB_NAME = "contacts.db"
-        val DB_VERSION = 1
+        val DB_VERSION = 2
     }
 
+    //names for contacts table
     private val TABLE_NAME = "contatos"
 
     private val COLUMN_ID = "id"
@@ -27,12 +28,26 @@ class HelperContatosDB(context: Context):
     private val CREATE_COLUMN_SRC_LAST_MESSAGE = "src_last_message TEXT"
     private val CREATE_COLUMN_LAST_MESSAGE = "last_message_text TEXT"
 
-    private val CREATE_TABLE = "CREATE TABLE $TABLE_NAME ($CREATE_COLUMN_ID, $CREATE_COLUMN_NAME, $CREATE_COLUMN_SRC_LAST_MESSAGE, $CREATE_COLUMN_LAST_MESSAGE);"
+    private val CREATE_TABLE_CONTACTS = "CREATE TABLE $TABLE_NAME ($CREATE_COLUMN_ID, $CREATE_COLUMN_NAME, $CREATE_COLUMN_SRC_LAST_MESSAGE, $CREATE_COLUMN_LAST_MESSAGE);"
 
     private val DROP_TABLE = "DROP TABLE IF EXISTS $TABLE_NAME"
 
+    //Names for messages tables
+    private val MESSAGES_TABLE_COLUMN_ID = "id"
+    private val MESSAGES_COLUMN_MESSAGE_SRC = "message_src"
+    private val MESSAGES_COLUMN_MESSAGE_CONTENT = "message_content"
+
+    private val CREATE_COLUMN_MESSAGES_TABLE_COLUMN_ID = "$MESSAGES_TABLE_COLUMN_ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"
+    private val CREATE_COLUMN_MESSAGES_COLUMN_MESSAGE_SRC = "$MESSAGES_COLUMN_MESSAGE_SRC TEXT NOT NULL"
+    private val CREATE_COLUMN_MESSAGES_COLUMN_MESSAGE_CONTENT = "$MESSAGES_COLUMN_MESSAGE_CONTENT TEXT"
+
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.execSQL(CREATE_TABLE)
+        db?.execSQL(CREATE_TABLE_CONTACTS)
+
+        val listContacts = fetchAllContatos(db)
+        for(contact in listContacts){
+            createMessagesTableForContact(contact.id.toString(), db)
+        }
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -42,12 +57,71 @@ class HelperContatosDB(context: Context):
         }
     }
 
-    fun fetchAllContatos(): List<CoposchatContact>{
-        val query = "SELECT * FROM $TABLE_NAME"
-        val list = mutableListOf<CoposchatContact>()
+    //Messages tables operations
+    /* -------------------------------------------------------------------------------------- */
+
+    private fun getTableNameForContactId(contactId: String): String?{
+        val MESSAGES_TABLE_NAME = "contact_$contactId"
+        return MESSAGES_TABLE_NAME
+    }
+
+    private fun createMessagesTableForContact(contactId: String, db: SQLiteDatabase?){
+        val MESSAGES_TABLE_NAME = getTableNameForContactId(contactId)
+        val CREATE_MESSAGES_TABLE = "CREATE TABLE $MESSAGES_TABLE_NAME ($CREATE_COLUMN_MESSAGES_TABLE_COLUMN_ID, $CREATE_COLUMN_MESSAGES_COLUMN_MESSAGE_SRC, $CREATE_COLUMN_MESSAGES_COLUMN_MESSAGE_CONTENT)"
+
+
+        db?.execSQL(CREATE_MESSAGES_TABLE)
+    }
+
+    fun fetchAllMessagesForContact(contactId: String): List<CoposchatMessage>{
+        val MESSAGES_TABLE_NAME = getTableNameForContactId(contactId)
+        val query = "SELECT * FROM $MESSAGES_TABLE_NAME"
+        val list:MutableList<CoposchatMessage> = mutableListOf()
+
         val db = readableDatabase ?: return mutableListOf()
 
         val cursor = db.rawQuery(query,null) ?: return mutableListOf()
+
+        while(cursor.moveToNext()) {
+            list.add(
+                CoposchatMessage(
+                    cursor.getString(
+                        cursor.getColumnIndex(MESSAGES_COLUMN_MESSAGE_CONTENT)
+                    ),
+                    cursor.getString(
+                        cursor.getColumnIndex(MESSAGES_COLUMN_MESSAGE_SRC)
+                    )
+                )
+            )
+        }
+
+        cursor.close()
+        db.close()
+        return list
+    }
+
+    fun addMessage(contactId: String, message: CoposchatMessage) {
+        val MESSAGES_TABLE_NAME = getTableNameForContactId(contactId)
+        val instruction = "INSERT INTO $MESSAGES_TABLE_NAME ($MESSAGES_COLUMN_MESSAGE_SRC,$MESSAGES_COLUMN_MESSAGE_CONTENT) VALUES (?, ?)"
+        val args = arrayOf(message.source, message.content)
+
+        val db = writableDatabase ?: return
+        db.execSQL(instruction,args)
+
+        db.close()
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+
+    //Contact table operations
+    /* -------------------------------------------------------------------------------------- */
+
+    fun fetchAllContatos(database: SQLiteDatabase? = null): List<CoposchatContact>{
+        val query = "SELECT * FROM $TABLE_NAME"
+        val list = mutableListOf<CoposchatContact>()
+        val db = database ?: readableDatabase ?: return mutableListOf()
+
+        val cursor = db?.rawQuery(query,null) ?: return mutableListOf()
 
         while(cursor.moveToNext()){
             list.add(
@@ -61,7 +135,8 @@ class HelperContatosDB(context: Context):
                 )
             )
         }
-        db.close()
+
+        cursor.close()
         return list
     }
 
@@ -85,6 +160,8 @@ class HelperContatosDB(context: Context):
             )
         }
 
+        cursor.close()
+        db.close()
         return contato
     }
 
@@ -96,6 +173,11 @@ class HelperContatosDB(context: Context):
         db.execSQL(instruction,arguments)
 
         db.close()
-        return findContatoByName(contactName)?.id
+
+        val contactId = findContatoByName(contactName)?.id
+
+        createMessagesTableForContact(contactId.toString(), writableDatabase)
+
+        return contactId
     }
 }
